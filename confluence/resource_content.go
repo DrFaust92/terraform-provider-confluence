@@ -54,6 +54,12 @@ func resourceContent() *schema.Resource {
 				Default:          "",
 				DiffSuppressFunc: resourceContentDiffParent,
 			},
+			"labels": {
+				Type:        schema.TypeSet,
+                Optional:    true,
+                Description: "An optional list of labels",
+                Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -114,6 +120,7 @@ func contentFromResourceData(d *schema.ResourceData) *Content {
 			},
 		},
 		Title: d.Get("title").(string),
+
 	}
 	version := d.Get("version").(int) // Get returns 0 if unset
 	if version > 0 {
@@ -128,7 +135,24 @@ func contentFromResourceData(d *schema.ResourceData) *Content {
 			},
 		}
 	}
+	result.MetaData = &MetaData {
+	    Labels: &Labels{
+            LabelResults: getLabelsFromResourceData(d),
+        },
+    }
 	return result
+}
+
+func getLabelsFromResourceData(d *schema.ResourceData) []*Label {
+    tfLabels := d.Get("labels").(*schema.Set).List()
+    Labels := []*Label{}
+    for _, label := range tfLabels {
+        l := new(Label)
+        l.Name = label.(string)
+        l.Prefix = "global"
+        Labels = append(Labels, l)
+   }
+   return Labels
 }
 
 func updateResourceDataFromContent(d *schema.ResourceData, content *Content, client *Client) error {
@@ -144,6 +168,13 @@ func updateResourceDataFromContent(d *schema.ResourceData, content *Content, cli
 	if len(content.Ancestors) > 1 {
 		m["parent"] = content.Ancestors[len(content.Ancestors)-1].Id
 	}
+
+    var labels []string
+    for _, x := range content.MetaData.Labels.LabelResults {
+        labels = append(labels, x.Name)
+    }
+    m["labels"] = labels
+
 	for k, v := range m {
 		err := d.Set(k, v)
 		if err != nil {

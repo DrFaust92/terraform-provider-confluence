@@ -18,6 +18,7 @@ resource confluence_content "default" {
   title  = "Example Page"
   body   = "<p>This page was built with Terraform<p>"
   parent = "123456"
+  labels = ["label1", "label2"]
 }
 ```
 
@@ -38,6 +39,8 @@ The following arguments are supported:
 * `title` - (Required) The title of the page.
 
 * `type` - (Optional) The content type (either "page" or "blogpost"). Default is page.
+
+* `labels` - (Optional) A list of labels to apply to the content.
 
 ## Attributes Reference
 

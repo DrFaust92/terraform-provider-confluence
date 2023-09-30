@@ -19,12 +19,29 @@ type Content struct {
 	Body      *Body         `json:"body,omitempty"`
 	Links     *ContentLinks `json:"_links,omitempty"`
 	Ancestors []*Content    `json:"ancestors,omitempty"`
+	MetaData  *MetaData     `json:"metadata,omitempty"`
 }
 
 // ContentLinks is part of Content
 type ContentLinks struct {
 	Context string `json:"context,omitempty"`
 	WebUI   string `json:"webui,omitempty"`
+}
+
+// Label is part of MetaData
+type Label struct {
+	Name   string `json:"name,omitempty"`
+	Prefix string `json:"prefix,omitempty"`
+}
+
+// Labels is part of MetaData
+type Labels struct {
+	LabelResults []*Label `json:"results,omitempty"`
+}
+
+// MetaData is part of Content
+type MetaData struct {
+	Labels *Labels `json:"labels,omitempty"`
 }
 
 // Space is part of Content
@@ -53,7 +70,7 @@ func (c *Client) CreateContent(content *Content) (*Content, error) {
 
 func (c *Client) GetContent(id string) (*Content, error) {
 	var response Content
-	path := fmt.Sprintf("/rest/api/content/%s?expand=space,body.storage,version,ancestors", id)
+	path := fmt.Sprintf("/rest/api/content/%s?expand=space,body.storage,version,ancestors,metadata.labels", id)
 	if err := c.Get(path, &response); err != nil {
 		return nil, err
 	}
@@ -63,7 +80,7 @@ func (c *Client) GetContent(id string) (*Content, error) {
 func (c *Client) UpdateContent(content *Content) (*Content, error) {
 	var response Content
 	content.Version.Number++
-	path := fmt.Sprintf("/rest/api/content/%s", content.Id)
+	path := fmt.Sprintf("/rest/api/content/%s?expand=metadata.labels", content.Id)
 	if err := c.Put(path, content, &response); err != nil {
 		return nil, err
 	}
