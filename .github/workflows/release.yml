@@ -38,8 +38,11 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b # v4.2.0
         with:
-          version: latest
-          args: release --rm-dist
+          # Pin GoReleaser to v1: the .goreleaser.yml is v1-format (no
+          # `version: 2`). v1 supports `--clean` (the replacement for the
+          # removed `--rm-dist`).
+          version: "~> v1"
+          args: release --clean
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           # GitHub sets this automatically
