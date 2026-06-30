@@ -1,9 +1,13 @@
+# Visit https://golangci-lint.run/ for usage documentation.
+version: "2"
 linters:
+  default: standard
+  settings:
+    staticcheck:
+      # Allow legacy initialisms such as Id/Url (was golint's "should be ID").
+      checks:
+        - all
+        - -ST1003
+formatters:
   enable:
     - gofmt
-    - golint
-issues:
-  exclude:
-    - struct field `\w*Id` should be `\w*ID`
-    - method parameter `\w*Id` should be `\w*ID`
-    - var `\w*Id` should be `\w*ID`
